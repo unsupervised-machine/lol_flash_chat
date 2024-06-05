@@ -4,6 +4,7 @@ import queue
 import threading
 import time
 
+
 import requests
 from PIL import Image, ImageTk
 from io import BytesIO
@@ -141,10 +142,29 @@ class GameOverlay(tk.Tk):
         self.text_lines.extend(unique_lines)  # Extend the list with new unique lines
         self.text_lines = self.text_lines[-5:]  # Keep only the last 5 lines
 
+        # Create a list to store Label widgets for champion icons and text labels
+        label_widgets = []
 
+        for line in self.text_lines:
+            # Extract champion name, timer, and summoner spell from the line
+            champ_name, timer, summoner_spell = line.split()
+            # Create a Label widget for the champion icon
+            icon_url = champion_icon_urls[champ_name]
+            image_bytes = requests.get(icon_url).content
+            champ_image = Image.open(BytesIO(image_bytes))
+            champ_image = champ_image.resize((30, 30))  # Resize the image as needed
+            champ_photo = ImageTk.PhotoImage(champ_image)
+            champ_icon_label = tk.Label(self.frame, image=champ_photo)
+            champ_icon_label.image = champ_photo  # Prevent image from being garbage collected
+            champ_icon_label.pack(side='left')  # Pack the champion icon label
+            # Create a Label widget for the text label
+            text_label = tk.Label(self.frame, text=f"{timer} {summoner_spell}")
+            text_label.pack(side='left')  # Pack the text label
+            # Append both labels to the list
+            label_widgets.append((champ_icon_label, text_label))
 
-        current_text = "\n".join(self.text_lines)  # Join list items to form the updated text
-        self.label.config(text=current_text)
+        # Update the list of Label widgets
+        self.label_widgets = label_widgets
 
     def update_overlay(self):
         try:
