@@ -83,7 +83,7 @@ class GameOverlay(tk.Tk):
         self.set_geometry()
 
         self.text_lines = []  # List to store received lines
-        self.label = tk.Label(text="", font=("Helvetica", 16), fg="white", bg="black")
+        self.label = tk.Label(text="Flash Timer Overlay", font=("Helvetica", 16), fg="white", bg="black")
         self.label.pack()
         if text_queue:
             self.text_queue = text_queue
@@ -155,13 +155,13 @@ class GameOverlay(tk.Tk):
             icon_url = champion_icon_urls[champ_name]
             image_bytes = requests.get(icon_url).content
             champ_image = Image.open(BytesIO(image_bytes))
-            champ_image = champ_image.resize((30, 30))  # Resize the image as needed
+            champ_image = champ_image.resize((40, 40))  # Resize the image as needed
             champ_photo = ImageTk.PhotoImage(champ_image)
             champ_icon_label = tk.Label(line_frame, image=champ_photo)
             champ_icon_label.image = champ_photo  # Prevent image from being garbage collected
             champ_icon_label.pack(side='left')  # Pack the champion icon label
             # Create a Label widget for the text label
-            text_label = tk.Label(line_frame, text=f"{timer} {summoner_spell}")
+            text_label = tk.Label(line_frame, text=f"{timer} {summoner_spell}", font=("Helvetica", 16))
             text_label.pack(side='left')  # Pack the text label
             # Append both labels to the list
             label_widgets.append((champ_icon_label, text_label))
