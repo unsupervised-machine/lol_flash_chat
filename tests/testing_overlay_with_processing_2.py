@@ -44,6 +44,7 @@ if __name__ == "__main__":
         "save_original_image": False,
         "save_processed_image": False,
         "save_processed_text": False,
+        "recording_delay": 1,
         # Add more custom parameters as needed
     }
 
