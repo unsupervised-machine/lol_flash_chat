@@ -164,6 +164,10 @@ def lines_flash_filter(lines, minutes_to_add=5):
     return flash_lines
 
 
+def lines_to_str(lines):
+    # text = '\n'.join(lines)
+    text = ' '.join(lines)
+    return text
 
 
 
@@ -225,7 +229,10 @@ def process_recording(program_name="League of Legends.exe",
             text = image_extract_text(image)
             lines = text_extract_lines(text)
             lines = lines_time_stamp_filter(lines)
+            # print(f'before flash_filter: {lines}')
             lines = lines_flash_filter(lines)
+
+            # lines = lines_to_str(lines)
 
             if save_processed_image:
                 cv2.imwrite(str(Path(save_path_dir) / f'processed_image_{frame_count}.jpg'), image)
@@ -239,7 +246,7 @@ def process_recording(program_name="League of Legends.exe",
 
             if text_queue is not None:
                 text_queue.put(lines)
-                # print(f'text put into queue {lines}')
+                print(f'text put into queue {lines}')
 
             frame_count += 1
             print(f"Frame {frame_count} read:")

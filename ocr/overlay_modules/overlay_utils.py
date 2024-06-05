@@ -46,8 +46,8 @@ class GameOverlay(tk.Tk):
             print(f"League of Legends window coordinates: {window_rect}")  # Debug print for window coordinates
             screen_width = self.winfo_screenwidth()
             screen_height = self.winfo_screenheight()
-            overlay_width = 300
-            overlay_height = 300
+            overlay_width = 600
+            overlay_height = 600
 
             # Place the overlay 220 pixels from the right and 100 pixels from the top of the game window
             x_position = window_rect[2] - 220
@@ -79,8 +79,12 @@ class GameOverlay(tk.Tk):
             self.frame.pack(side='top', fill='both', expand=True)
             self.set_geometry()
 
-    def update_text(self, text):
-        self.text_lines.append(text)  # Append new line to the list
+    def update_text(self, text_list):
+        unique_lines = []
+        for line in text_list:
+            if line not in self.text_lines:
+                unique_lines.append(line)  # Filter out duplicates
+        self.text_lines.extend(unique_lines)  # Extend the list with new unique lines
         self.text_lines = self.text_lines[-5:]  # Keep only the last 5 lines
         current_text = "\n".join(self.text_lines)  # Join list items to form the updated text
         self.label.config(text=current_text)
@@ -90,8 +94,9 @@ class GameOverlay(tk.Tk):
             text = self.text_queue.get_nowait()
             self.update_text(text)
         except queue.Empty:
-            default_text = "Default Text"
-            self.update_text(default_text)
+            pass
+            # default_text = "Default Text"
+            # self.update_text(default_text)
 
         # Schedule the update_overlay method to run again after a delay
         self.after(1000, self.update_overlay)
@@ -105,9 +110,9 @@ def producer(queue_obj):
     counter = 0
     while True:
         counter += 1
-        text = f"Line {counter}"
-        print(f"text from queue: {text}")
-        queue_obj.put(text)
+        lines = [f"Line {counter}-{i}" for i in range(5)]  # Create a list of strings
+        print(f"Text from queue: {lines}")
+        queue_obj.put(lines)  # Put the list of strings into the queue
         time.sleep(1)  # Adjust the sleep duration as needed
 
 
