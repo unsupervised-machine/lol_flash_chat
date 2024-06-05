@@ -65,6 +65,7 @@ class CustomFrame(tk.Frame):
 class GameOverlay(tk.Tk):
     def __init__(self, text_queue):
         super().__init__()
+        self.configure(background='')
         self.label_widgets = []
         self.overrideredirect(True)  # Deletes Windows' default title bar
         self.wm_attributes('-alpha', 0.75)
@@ -85,7 +86,7 @@ class GameOverlay(tk.Tk):
         self.set_geometry()
 
         self.text_lines = []  # List to store received lines
-        self.label = tk.Label(text="Flash Timer Overlay", font=("Helvetica", 16), fg="white", bg="black")
+        self.label = tk.Label(text="Flash Timer Overlay", font=("Helvetica", 12), fg="white", bg="black")
         self.label.pack()
         if text_queue:
             self.text_queue = text_queue
@@ -99,8 +100,8 @@ class GameOverlay(tk.Tk):
             print(f"League of Legends window coordinates: {window_rect}")  # Debug print for window coordinates
             screen_width = self.winfo_screenwidth()
             screen_height = self.winfo_screenheight()
-            overlay_width = 600
-            overlay_height = 1000
+            overlay_width = 400
+            overlay_height = 400
 
             # Place the overlay 220 pixels from the right and 100 pixels from the top of the game window
             x_position = window_rect[2] - 220
@@ -179,14 +180,14 @@ class GameOverlay(tk.Tk):
             icon_url = champion_icon_urls[champ_name]
             image_bytes = requests.get(icon_url).content
             champ_image = Image.open(BytesIO(image_bytes))
-            champ_image = champ_image.resize((40, 40))
+            champ_image = champ_image.resize((30, 30))
             champ_photo = ImageTk.PhotoImage(champ_image)
             champ_icon_label = tk.Label(self.scrollable_frame, image=champ_photo)
             champ_icon_label.image = champ_photo
-            champ_icon_label.pack(side='top', anchor='n', padx=5, pady=5)
+            champ_icon_label.pack(side='top', anchor='nw', padx=5, pady=5)
 
-            text_label = tk.Label(self.scrollable_frame, text=f"{timer} {summoner_spell}", font=("Helvetica", 16))
-            text_label.pack(side='top', anchor='n', padx=5, pady=5)
+            text_label = tk.Label(self.scrollable_frame, text=f"{timer} {summoner_spell}", font=("Helvetica", 12))
+            text_label.pack(side='top', anchor='ne', padx=5, pady=5)
 
             self.label_widgets.append((champ_icon_label, text_label))
 
