@@ -8,8 +8,8 @@ import time
 from config import config
 import os
 from datetime import datetime, timedelta
-import queue
-import threading
+
+
 
 tesseract_path = config.TESSERACT_PATH
 if not os.path.isfile(tesseract_path):
@@ -194,8 +194,8 @@ def process_recording(program_name="League of Legends.exe",
                       save_processed_image=True,
                       save_processed_text=True,
                       device_number=0,
-                      queue=None,
                       home_dir=None,
+                      text_queue=None,
                       ):
     if home_dir is not None:
         os.chdir(home_dir)
@@ -235,15 +235,18 @@ def process_recording(program_name="League of Legends.exe",
                 with open(str(Path(save_path_dir) / f'lines_{frame_count}.txt'), 'w') as f:
                     f.write('\n'.join(lines))
 
-            if queue is not None:
-                queue.put(lines)
+            # print(f'text found from processing_utils: {lines}')
+
+            if text_queue is not None:
+                text_queue.put(lines)
+                # print(f'text put into queue {lines}')
 
             frame_count += 1
-            # print(f"Frame {frame_count} read:")
+            print(f"Frame {frame_count} read:")
             time.sleep(1 / target_fps)  # Wait for the next frame interval
     except KeyboardInterrupt:
         print("Interrupted by user. Exiting loop.")
-        return "Unsuccessfully ran recording script"
+        return "Successfully ran recording script"
     finally:
         camera.stop()
 

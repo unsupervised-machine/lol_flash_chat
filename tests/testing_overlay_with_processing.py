@@ -1,6 +1,7 @@
 from ocr.recording_modules import processing_utils
 from ocr.overlay_modules import overlay_utils
 import threading
+import queue
 
 
 def main():

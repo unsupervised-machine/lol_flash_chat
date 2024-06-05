@@ -1,6 +1,8 @@
-import queue
 import tkinter as tk
 import win32gui
+import queue
+import threading
+import time
 
 
 class CustomFrame(tk.Frame):
@@ -11,8 +13,8 @@ class CustomFrame(tk.Frame):
 
 
 class GameOverlay(tk.Tk):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, text_queue):
+        super().__init__()
         self.overrideredirect(True)  # Deletes Windows' default title bar
         self.wm_attributes('-alpha', 0.75)
         self.wm_attributes('-transparentcolor', 'grey15')  # Change color to avoid jagged borders
@@ -29,18 +31,12 @@ class GameOverlay(tk.Tk):
         self.geometry("200x100+100+100")
         self.set_geometry()
 
-        self.lines = ["Champ 1: 0", "Champ 2: 0", "Champ 3: 0", "Champ 4: 0", "Champ 5: 0"]
-
-        self.time_label_text = tk.StringVar()
-        self.time_label_text.set("Game Time: 0:00")
-        self.time_label = tk.Label(self, textvariable=self.time_label_text, font=('Tahoma', 12), fg='white',
-                                   bg='grey15')
-        self.time_label.pack(pady=20)
-
-        self.queue = queue.Queue()
-
-        # self.update_time()
-        self.update_text()
+        self.text_lines = []  # List to store received lines
+        self.label = tk.Label(text="", font=("Helvetica", 16), fg="white", bg="black")
+        self.label.pack()
+        if text_queue:
+            self.text_queue = text_queue
+        self.update_overlay()
 
     def set_geometry(self):
         window_name = 'League of Legends (TM) Client'
@@ -51,7 +47,7 @@ class GameOverlay(tk.Tk):
             screen_width = self.winfo_screenwidth()
             screen_height = self.winfo_screenheight()
             overlay_width = 300
-            overlay_height = 450
+            overlay_height = 300
 
             # Place the overlay 220 pixels from the right and 100 pixels from the top of the game window
             x_position = window_rect[2] - 220
@@ -82,37 +78,48 @@ class GameOverlay(tk.Tk):
             self.frame = CustomFrame(self)  # Recreate the frame
             self.frame.pack(side='top', fill='both', expand=True)
             self.set_geometry()
-            self.time_label.pack(pady=20)
 
-    def update_time(self):
-        # This function should update the game time periodically
-        # Here we just increment the time for demonstration purposes
-        current_time = self.time_label_text.get().split(" ")[-1]
-        minutes, seconds = map(int, current_time.split(":"))
-        seconds += 1
-        if seconds == 60:
-            minutes += 1
-            seconds = 0
-        # self.time_label_text.set(f"Game Time: {minutes}:{seconds:02d}")
-        self.time_label_text.set(f"{minutes}:{seconds:02d}")
-        self.after(1000, self.update_time)
+    def update_text(self, text):
+        self.text_lines.append(text)  # Append new line to the list
+        self.text_lines = self.text_lines[-5:]  # Keep only the last 5 lines
+        current_text = "\n".join(self.text_lines)  # Join list items to form the updated text
+        self.label.config(text=current_text)
 
-    def update_text(self):
-        print(self.lines)
+    def update_overlay(self):
         try:
-            while True:
-                lines = self.queue.get_nowait()  # Get lines from the queue if available
-                self.lines = lines  # Update self.lines with new lines
-                self.time_label_text.set("\n".join(self.lines))
+            text = self.text_queue.get_nowait()
+            self.update_text(text)
         except queue.Empty:
-            pass
-        self.after(1000, self.update_text)  # Schedule the next update after 1 second
+            default_text = "Default Text"
+            self.update_text(default_text)
 
-    def run(self):
+        # Schedule the update_overlay method to run again after a delay
+        self.after(1000, self.update_overlay)
+
+    def start(self):
         self.mainloop()
 
 
-if __name__ == "__main__":
-    overlay = GameOverlay()
-    overlay.run()
+# helper function used for testing the overlay
+def producer(queue_obj):
+    counter = 0
+    while True:
+        counter += 1
+        text = f"Line {counter}"
+        print(f"text from queue: {text}")
+        queue_obj.put(text)
+        time.sleep(1)  # Adjust the sleep duration as needed
 
+
+
+
+
+if __name__ == "__main__":
+    text_queue = queue.Queue()
+
+    producer_thread = threading.Thread(target=producer, args=(text_queue,))
+    producer_thread.daemon = True
+    producer_thread.start()
+
+    overlay = GameOverlay(text_queue)
+    overlay.start()
