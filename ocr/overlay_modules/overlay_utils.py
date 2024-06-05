@@ -65,6 +65,7 @@ class CustomFrame(tk.Frame):
 class GameOverlay(tk.Tk):
     def __init__(self, text_queue):
         super().__init__()
+        self.label_widgets = None
         self.overrideredirect(True)  # Deletes Windows' default title bar
         self.wm_attributes('-alpha', 0.75)
         self.wm_attributes('-transparentcolor', 'grey15')  # Change color to avoid jagged borders
@@ -97,7 +98,7 @@ class GameOverlay(tk.Tk):
             screen_width = self.winfo_screenwidth()
             screen_height = self.winfo_screenheight()
             overlay_width = 600
-            overlay_height = 400
+            overlay_height = 1000
 
             # Place the overlay 220 pixels from the right and 100 pixels from the top of the game window
             x_position = window_rect[2] - 220
@@ -136,29 +137,39 @@ class GameOverlay(tk.Tk):
     def update_text(self, text_list):
 
         unique_lines = []
+        label_widgets = []
         for line in text_list:
             if line not in self.text_lines:
                 unique_lines.append(line)  # Filter out duplicates
         self.text_lines.extend(unique_lines)  # Extend the list with new unique lines
         self.text_lines = self.text_lines[-5:]  # Keep only the last 5 lines
 
+        # Clear existing label widgets
+        # if self.label_widgets:
+        #     for widget_tuple in self.label_widgets:
+        #         for widget in widget_tuple:
+        #             widget.destroy()
+
         # Create a list to store Label widgets for champion icons and text labels
-        label_widgets = []
+
 
         for line in self.text_lines:
             # Extract champion name, timer, and summoner spell from the line
             champ_name, timer, summoner_spell = line.split()
+            # Create a frame for each line
+            line_frame = tk.Frame(self.frame)
+            line_frame.pack(side='top', anchor='w', padx=5, pady=5)  # Pack the frame to the top, anchored to the west
             # Create a Label widget for the champion icon
             icon_url = champion_icon_urls[champ_name]
             image_bytes = requests.get(icon_url).content
             champ_image = Image.open(BytesIO(image_bytes))
             champ_image = champ_image.resize((30, 30))  # Resize the image as needed
             champ_photo = ImageTk.PhotoImage(champ_image)
-            champ_icon_label = tk.Label(self.frame, image=champ_photo)
+            champ_icon_label = tk.Label(line_frame, image=champ_photo)
             champ_icon_label.image = champ_photo  # Prevent image from being garbage collected
             champ_icon_label.pack(side='left')  # Pack the champion icon label
             # Create a Label widget for the text label
-            text_label = tk.Label(self.frame, text=f"{timer} {summoner_spell}")
+            text_label = tk.Label(line_frame, text=f"{timer} {summoner_spell}")
             text_label.pack(side='left')  # Pack the text label
             # Append both labels to the list
             label_widgets.append((champ_icon_label, text_label))
