@@ -98,7 +98,7 @@ class GameOverlay(tk.Tk):
             screen_width = self.winfo_screenwidth()
             screen_height = self.winfo_screenheight()
             overlay_width = 600
-            overlay_height = 1000
+            overlay_height = 400
 
             # Place the overlay 220 pixels from the right and 100 pixels from the top of the game window
             x_position = window_rect[2] - 220
@@ -144,16 +144,8 @@ class GameOverlay(tk.Tk):
         self.text_lines.extend(unique_lines)  # Extend the list with new unique lines
         self.text_lines = self.text_lines[-5:]  # Keep only the last 5 lines
 
-        # Clear existing label widgets
-        # if self.label_widgets:
-        #     for widget_tuple in self.label_widgets:
-        #         for widget in widget_tuple:
-        #             widget.destroy()
 
-        # Create a list to store Label widgets for champion icons and text labels
-
-
-        for line in self.text_lines:
+        for line in unique_lines:
             # Extract champion name, timer, and summoner spell from the line
             champ_name, timer, summoner_spell = line.split()
             # Create a frame for each line
