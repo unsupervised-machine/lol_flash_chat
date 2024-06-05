@@ -195,7 +195,11 @@ def process_recording(program_name="League of Legends.exe",
                       save_processed_text=True,
                       device_number=0,
                       queue=None,
+                      home_dir=None,
                       ):
+    if home_dir is not None:
+        os.chdir(home_dir)
+
     time.sleep(recording_delay)
 
     camera = dxcam.create(output_idx=device_number, output_color=output_color)
@@ -226,6 +230,7 @@ def process_recording(program_name="League of Legends.exe",
             if save_processed_image:
                 cv2.imwrite(str(Path(save_path_dir) / f'processed_image_{frame_count}.jpg'), image)
 
+            print(os.getcwd())
             if save_processed_text:
                 with open(str(Path(save_path_dir) / f'lines_{frame_count}.txt'), 'w') as f:
                     f.write('\n'.join(lines))

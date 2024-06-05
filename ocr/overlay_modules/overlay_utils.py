@@ -37,7 +37,7 @@ class GameOverlay(tk.Tk):
                                    bg='grey15')
         self.time_label.pack(pady=20)
 
-        self.queue = queue.Queue
+        self.queue = queue.Queue()
 
         # self.update_time()
         self.update_text()
@@ -98,17 +98,15 @@ class GameOverlay(tk.Tk):
         self.after(1000, self.update_time)
 
     def update_text(self):
-        # Update each line to increment its value
-        for i in range(len(self.lines)):
-            line_parts = self.lines[i].split(": ")
-            line_parts[1] = str(int(line_parts[1]) + 1)  # Increment the value
-            self.lines[i] = ": ".join(line_parts)
-
-        # Update the label text with the modified lines
-        self.time_label_text.set("\n".join(self.lines))
-
-        # Schedule the next update after 5 seconds
-        self.after(5000, self.update_text)
+        print(self.lines)
+        try:
+            while True:
+                lines = self.queue.get_nowait()  # Get lines from the queue if available
+                self.lines = lines  # Update self.lines with new lines
+                self.time_label_text.set("\n".join(self.lines))
+        except queue.Empty:
+            pass
+        self.after(1000, self.update_text)  # Schedule the next update after 1 second
 
     def run(self):
         self.mainloop()
