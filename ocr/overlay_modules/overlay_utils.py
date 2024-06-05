@@ -4,6 +4,55 @@ import queue
 import threading
 import time
 
+import requests
+from PIL import Image, ImageTk
+from io import BytesIO
+
+
+# Get the latest version of the game
+version_url = "https://ddragon.leagueoflegends.com/api/versions.json"
+versions = requests.get(version_url).json()
+latest_version = versions[0]
+
+# Get the champion data for the latest version
+champion_url = f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/champion.json"
+champion_data = requests.get(champion_url).json()
+
+# Extract champion names
+# champion_names = {champ_data['name'] for champ_data in champion_data['data'].values()}
+# Extract champion names and their icon URLs
+champion_names = {}
+champion_icon_urls = {}
+for champ_data in champion_data['data'].values():
+    champion_names[champ_data['name']] = True
+    name = champ_data['name']
+    icon_url = f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/img/champion/{champ_data['image']['full']}"
+    champion_icon_urls[name] = icon_url
+
+
+def filter_champion_names(text_list):
+    filtered_strings = [s for s in text_list if s.split()[0] in champion_names.keys()]
+    # for s in text_list:
+    #     name = s.split()[0]
+    #     if name in champion_names.keys():
+    #         print(f"{s}: Found in champion names")
+    #     else:
+    #         print(f"{s}: Not found in champion names")
+    return filtered_strings
+
+
+# function to avoid already present timers, should only keep the oldest timer less than 5 minutes old.
+def remove_duplicate_timers(text_list):
+    highest_times = {}
+    for line in text_list:
+        timer, name, summoner_spell = line.split()
+        # If champ is not in dictionary or the current time is lower, update the dictionary
+        if name not in highest_times or timer > highest_times[name][0]:
+            highest_times[name] = (timer, summoner_spell)
+
+    res = [f"{name} {timer} {summoner_spell}" for name, (timer, summoner_spell) in highest_times.items()]
+    return res
+
 
 class CustomFrame(tk.Frame):
     def __init__(self, *args, **kwargs):
@@ -47,7 +96,7 @@ class GameOverlay(tk.Tk):
             screen_width = self.winfo_screenwidth()
             screen_height = self.winfo_screenheight()
             overlay_width = 600
-            overlay_height = 600
+            overlay_height = 400
 
             # Place the overlay 220 pixels from the right and 100 pixels from the top of the game window
             x_position = window_rect[2] - 220
@@ -79,17 +128,9 @@ class GameOverlay(tk.Tk):
             self.frame.pack(side='top', fill='both', expand=True)
             self.set_geometry()
 
-    # helper function to avoid already present timers, should only keep the oldest timer less than 5 minutes old.
-    def remove_duplicate_timers(self, text_list):
-        highest_times = {}
-        for line in text_list:
-            timer, name, summoner_spell = line.split()
-            # If champ is not in dictionary or the current time is lower, update the dictionary
-            if name not in highest_times or timer > highest_times[name][0]:
-                highest_times[name] = (timer, summoner_spell)
+    def get_champion_icons(self):
+        pass
 
-        res = [f"{name} {timer} {summoner_spell}" for name, (timer, summoner_spell) in highest_times.items()]
-        return res
 
     def update_text(self, text_list):
 
@@ -99,6 +140,9 @@ class GameOverlay(tk.Tk):
                 unique_lines.append(line)  # Filter out duplicates
         self.text_lines.extend(unique_lines)  # Extend the list with new unique lines
         self.text_lines = self.text_lines[-5:]  # Keep only the last 5 lines
+
+
+
         current_text = "\n".join(self.text_lines)  # Join list items to form the updated text
         self.label.config(text=current_text)
 
@@ -106,7 +150,8 @@ class GameOverlay(tk.Tk):
         try:
             text_list = self.text_queue.get_nowait()
             print(f"text_list: {text_list}")
-            text_list = self.remove_duplicate_timers(text_list)
+            text_list = remove_duplicate_timers(text_list)
+            text_list = filter_champion_names(text_list)
             self.update_text(text_list)
         except queue.Empty:
             pass
