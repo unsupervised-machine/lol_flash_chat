@@ -9,8 +9,6 @@ import time
 
 
 # Configure this test script to run from project home
-
-
 # Function to remove files in testing directory
 # def delete_files_in_directory(directory):
 #     for filename in os.listdir(directory):

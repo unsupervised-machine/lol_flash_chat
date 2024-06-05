@@ -237,7 +237,7 @@ def process_recording(program_name="League of Legends.exe",
             if save_processed_image:
                 cv2.imwrite(str(Path(save_path_dir) / f'processed_image_{frame_count}.jpg'), image)
 
-            print(os.getcwd())
+            # print(os.getcwd())
             if save_processed_text:
                 with open(str(Path(save_path_dir) / f'lines_{frame_count}.txt'), 'w') as f:
                     f.write('\n'.join(lines))
@@ -246,10 +246,10 @@ def process_recording(program_name="League of Legends.exe",
 
             if text_queue is not None:
                 text_queue.put(lines)
-                print(f'text put into queue {lines}')
+                # print(f'text put into queue {lines}')
 
             frame_count += 1
-            print(f"Frame {frame_count} read:")
+            # print(f"Frame {frame_count} read:")
             time.sleep(1 / target_fps)  # Wait for the next frame interval
     except KeyboardInterrupt:
         print("Interrupted by user. Exiting loop.")

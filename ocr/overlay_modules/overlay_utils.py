@@ -79,7 +79,20 @@ class GameOverlay(tk.Tk):
             self.frame.pack(side='top', fill='both', expand=True)
             self.set_geometry()
 
+    # helper function to avoid already present timers, should only keep the oldest timer less than 5 minutes old.
+    def remove_duplicate_timers(self, text_list):
+        highest_times = {}
+        for line in text_list:
+            timer, name, summoner_spell = line.split()
+            # If champ is not in dictionary or the current time is lower, update the dictionary
+            if name not in highest_times or timer > highest_times[name][0]:
+                highest_times[name] = (timer, summoner_spell)
+
+        res = [f"{name} {timer} {summoner_spell}" for name, (timer, summoner_spell) in highest_times.items()]
+        return res
+
     def update_text(self, text_list):
+
         unique_lines = []
         for line in text_list:
             if line not in self.text_lines:
@@ -91,8 +104,10 @@ class GameOverlay(tk.Tk):
 
     def update_overlay(self):
         try:
-            text = self.text_queue.get_nowait()
-            self.update_text(text)
+            text_list = self.text_queue.get_nowait()
+            print(f"text_list: {text_list}")
+            text_list = self.remove_duplicate_timers(text_list)
+            self.update_text(text_list)
         except queue.Empty:
             pass
             # default_text = "Default Text"
@@ -105,13 +120,13 @@ class GameOverlay(tk.Tk):
         self.mainloop()
 
 
-# helper function used for testing the overlay
+# function used for testing the overlay
 def producer(queue_obj):
     counter = 0
     while True:
         counter += 1
         lines = [f"Line {counter}-{i}" for i in range(5)]  # Create a list of strings
-        print(f"Text from queue: {lines}")
+        # print(f"Text from queue: {lines}")
         queue_obj.put(lines)  # Put the list of strings into the queue
         time.sleep(1)  # Adjust the sleep duration as needed
 
