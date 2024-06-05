@@ -123,14 +123,6 @@ class GameOverlay(tk.Tk):
         y = self.winfo_pointery() - self._offsety
         self.geometry(f'+{x}+{y}')
 
-    # def toggle_visibility(self, event=None):
-    #     if self.frame:
-    #         self.frame.destroy()  # Destroy the frame if it exists
-    #         self.frame = None
-    #     else:
-    #         self.frame = CustomFrame(self)  # Recreate the frame
-    #         self.frame.pack(side='top', fill='both', expand=True)
-    #         self.set_geometry()
     def toggle_visibility(self, event=None):
         if self.canvas:
             self.canvas.destroy()  # Destroy the canvas if it exists
@@ -191,10 +183,10 @@ class GameOverlay(tk.Tk):
             champ_photo = ImageTk.PhotoImage(champ_image)
             champ_icon_label = tk.Label(self.scrollable_frame, image=champ_photo)
             champ_icon_label.image = champ_photo
-            champ_icon_label.pack(side='top', anchor='w', padx=5, pady=5)
+            champ_icon_label.pack(side='top', anchor='n', padx=5, pady=5)
 
             text_label = tk.Label(self.scrollable_frame, text=f"{timer} {summoner_spell}", font=("Helvetica", 16))
-            text_label.pack(side='top', anchor='w', padx=5, pady=5)
+            text_label.pack(side='top', anchor='n', padx=5, pady=5)
 
             self.label_widgets.append((champ_icon_label, text_label))
 

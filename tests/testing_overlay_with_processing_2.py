@@ -1,6 +1,4 @@
 from ocr.recording_modules import processing_utils
-from pathlib import Path
-import os
 from ocr.overlay_modules.overlay_utils import GameOverlay
 
 import threading
