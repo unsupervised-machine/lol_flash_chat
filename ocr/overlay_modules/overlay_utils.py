@@ -1,5 +1,6 @@
 import tkinter as tk
 import win32gui
+import win32con
 import queue
 import threading
 import time
@@ -55,6 +56,14 @@ def remove_duplicate_timers(text_list):
     return res
 
 
+def make_click_through():
+    hwnd = win32gui.GetForegroundWindow()
+    ex_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
+    ex_style |= win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT
+    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, ex_style)
+    win32gui.SetLayeredWindowAttributes(hwnd, 0, 255, win32con.LWA_ALPHA)
+
+
 class CustomFrame(tk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -91,6 +100,11 @@ class GameOverlay(tk.Tk):
         if text_queue:
             self.text_queue = text_queue
         self.update_overlay()
+        self.after(100, make_click_through)
+
+    def stop(self):
+        self.destroy()
+        raise SystemExit
 
     def set_geometry(self):
         window_name = 'League of Legends (TM) Client'
@@ -208,6 +222,7 @@ class GameOverlay(tk.Tk):
 
     def start(self):
         self.mainloop()
+
 
 
 # function used for testing the overlay

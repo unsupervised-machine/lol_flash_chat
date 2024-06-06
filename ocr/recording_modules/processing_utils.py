@@ -197,6 +197,7 @@ def process_recording(program_name="League of Legends.exe",
                       save_original_image=True,
                       save_processed_image=True,
                       save_processed_text=True,
+                      check_is_process_running=False,
                       device_number=0,
                       home_dir=None,
                       text_queue=None,
@@ -213,9 +214,10 @@ def process_recording(program_name="League of Legends.exe",
 
     try:
         while True:
-            if not is_process_running(process_name=program_name):
-                print(f"{program_name} has closed. Exiting loop.")
-                break
+            if check_is_process_running:
+                if not is_process_running(process_name=program_name):
+                    print(f"{program_name} has closed. Exiting loop.")
+                    break
 
             image = camera.get_latest_frame()
 
