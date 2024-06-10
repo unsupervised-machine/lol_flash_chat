@@ -56,14 +56,6 @@ def remove_duplicate_timers(text_list):
     return res
 
 
-def make_click_through():
-    hwnd = win32gui.GetForegroundWindow()
-    ex_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
-    ex_style |= win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT
-    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, ex_style)
-    win32gui.SetLayeredWindowAttributes(hwnd, 0, 255, win32con.LWA_ALPHA)
-
-
 class CustomFrame(tk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,15 +63,27 @@ class CustomFrame(tk.Frame):
         self.background.pack(fill=tk.BOTH, expand=True)
 
 
+def find_window_handle(window_title):
+    return win32gui.FindWindow(None, window_title)
+
+
+# def make_window_clickthrough(hwnd):
+#     ex_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
+#     ex_style |= win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT
+#     win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, ex_style)
+
+
 class GameOverlay(tk.Tk):
     def __init__(self, text_queue):
         super().__init__()
+        self.title("Overlay Example")
         self.configure(background='')
         self.label_widgets = []
         self.overrideredirect(True)  # Deletes Windows' default title bar
         self.wm_attributes('-alpha', 0.75)
         self.wm_attributes('-transparentcolor', 'grey15')  # Change color to avoid jagged borders
         self.wm_attributes("-topmost", True)
+        # self.wm_attributes("-disabled", True)
         self._offsetx = 0
         self._offsety = 0
         self.is_visible = True
@@ -100,7 +104,10 @@ class GameOverlay(tk.Tk):
         if text_queue:
             self.text_queue = text_queue
         self.update_overlay()
-        self.after(100, make_click_through)
+        self.overrideredirect(True)
+        hwnd = win32gui.FindWindow(None, "Overlay Example")
+        # make_window_clickthrough(hwnd)
+
 
     def stop(self):
         self.destroy()
@@ -166,7 +173,8 @@ class GameOverlay(tk.Tk):
         pass
 
     def update_text(self, text_list):
-        max_lines = 5
+        max_lines = 3
+
         unique_lines = []
 
         for line in text_list:
@@ -194,7 +202,7 @@ class GameOverlay(tk.Tk):
             icon_url = champion_icon_urls[champ_name]
             image_bytes = requests.get(icon_url).content
             champ_image = Image.open(BytesIO(image_bytes))
-            champ_image = champ_image.resize((30, 30))
+            champ_image = champ_image.resize((40, 40))
             champ_photo = ImageTk.PhotoImage(champ_image)
             champ_icon_label = tk.Label(self.scrollable_frame, image=champ_photo)
             champ_icon_label.image = champ_photo
@@ -204,6 +212,7 @@ class GameOverlay(tk.Tk):
             text_label.pack(side='top', anchor='ne', padx=5, pady=5)
 
             self.label_widgets.append((champ_icon_label, text_label))
+
 
     def update_overlay(self):
         try:
@@ -221,6 +230,8 @@ class GameOverlay(tk.Tk):
         self.after(1000, self.update_overlay)
 
     def start(self):
+        # hwnd = self.winfo_id()  # Get the handle of the window after it's created
+        # make_window_clickthrough(hwnd)
         self.mainloop()
 
 

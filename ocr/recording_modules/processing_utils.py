@@ -153,16 +153,19 @@ def lines_flash_filter(lines, minutes_to_add=5):
             timestamp = match.group(1)
             champion_name = match.group(2)
 
-            # Parse the timestamp and add the specified number of minutes
-            original_time = datetime.strptime(timestamp, "%M:%S")
-            new_time = original_time + timedelta(minutes=minutes_to_add)
-            new_timestamp = new_time.strftime("%M:%S")
+            try:
+                # Parse the timestamp and add the specified number of minutes
+                original_time = datetime.strptime(timestamp, "%M:%S")
+                new_time = original_time + timedelta(minutes=minutes_to_add)
+                new_timestamp = new_time.strftime("%M:%S")
 
-            # Append the modified timestamp and champion name to the result list
-            flash_lines.append(f"{new_timestamp} {champion_name} Flash")
+                # Append the modified timestamp and champion name to the result list
+                flash_lines.append(f"{new_timestamp} {champion_name} Flash")
+            except ValueError:
+                # If the timestamp can't be converted, just pass
+                pass
 
     return flash_lines
-
 
 def lines_to_str(lines):
     # text = '\n'.join(lines)
