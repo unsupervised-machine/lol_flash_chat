@@ -15,3 +15,7 @@ The speech detection module records sounds wave files from the users primary mic
 
 
 ![Example Image](https://github.com/unsupervised-machine/lol_flash_chat/blob/master/images_github/1_champion_flash_timer.JPG?raw=true)
+
+
+# TODO 
+## DEV INSTALL GUIDE
