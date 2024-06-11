@@ -1,8 +1,13 @@
 # File Structure
-This project includes 3 multi-threaded processes. 
+This project includes 3 multi-threaded processes and a main to orchestrate running the processes.
   - Recording the screen and processing the image stream into a computer vision algorithm.
   - Displaying an overlay relaying relevant information captured from the OCR.
   - A speech detection model that relays voice commands into the players chat.
+
+# Main Component
+- Ensures that an instance of the game is running. Closes program when game is no longer open.
+- Allows saving of intermediate images to debug CV component.
+- Implements multi-threading to allow processes to hand of data between eachother.
 
 # CV Component
 The computer vision processing module includes cropping and resizing the image to capture the chat section of the screen, converting the image to gray, binizing the image using adaptive thresholding, running a tesseract model to extract and then filter relevant text.
